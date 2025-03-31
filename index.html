@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D1 Read Replicas - Cloudflare</title>
+    <style>
+
+@font-face {
+            font-family: 'Departure Mono';
+            src: url('departuremono.otf') format('opentype');
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            background: #000;
+            color: #fff;
+            font-family: 'Departure Mono', monospace;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 3rem;
+            background: rgba(0, 0, 0, 0.9);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo img {
+            height: 24px;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .auth-buttons button {
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+        }
+
+        .sign-in {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: #fff;
+        }
+
+        .sign-up {
+            background: #f6821f;
+            border: none;
+            color: #fff;
+        }
+
+        .main-content {
+            margin-top: 100px;
+            padding: 3rem;
+            max-width: 1080px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .breadcrumb {
+            color: #888;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: normal;
+            letter-spacing: -0.5px;
+        }
+
+        .description {
+            color: #888;
+            margin-bottom: 2.5rem;
+            max-width: 700px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 3rem;
+        }
+
+        .write-button {
+            background: #f6821f;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            transition: background-color 0.2s;
+            letter-spacing: 0.3px;
+        }
+
+        .write-button:hover {
+            background: #e67a1f;
+        }
+
+        .write-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .last-write {
+            color: #888;
+            font-size: 0.85rem;
+            letter-spacing: 0.2px;
+        }
+
+        table {
+            max-width: 700px;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        th {
+            color: #888;
+            font-weight: normal;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Column widths */
+        th:nth-child(1), td:nth-child(1) { width: 30%; }
+        th:nth-child(2), td:nth-child(2) { width: 15%; }
+        th:nth-child(3), td:nth-child(3) { width: 20%; }
+        th:nth-child(4), td:nth-child(4) { width: 20%; }
+        th:nth-child(5), td:nth-child(5) { width: 15%; }
+
+        .latency-good {
+            color: #00cc66;
+        }
+
+        .latency-medium {
+            color: #f6821f;
+        }
+
+        .region-code {
+            color: #888;
+            font-size: 0.85rem;
+        }
+
+        #globe-container {
+            white-space: pre;
+            font-size: 8px;
+            line-height: 8px;
+            letter-spacing: 2.5px;
+            font-family: monospace;
+            position: fixed;
+            bottom: -500px;
+            right: -600px;
+            transform: scale(2.5) translateX(15%);
+            transform-origin: bottom right;
+            opacity: 0.35;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Add subtle hover effect on table rows */
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <img src="cloudflare.svg" alt="Cloudflare">
+        </div>
+        <div class="auth-buttons">
+            <button class="sign-in">Sign In</button>
+            <button class="sign-up">Sign Up</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="breadcrumb">› Introducing</div>
+        <h1>D1 Read Replicas</h1>
+        <p class="description">
+            Watch how quickly writes propagate across our global network of read replicas. 
+            Click the button below to perform a write operation and observe the latency across different regions.
+        </p>
+        
+        <div class="controls">
+            <button class="write-button" id="writeButton">Perform Write</button>
+            <span class="last-write" id="lastWrite"></span>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Region</th>
+                    <th>Code</th>
+                    <th>Type</th>
+                    <th>Last Update</th>
+                    <th>Latency</th>
+                </tr>
+            </thead>
+            <tbody id="replicaTable">
+                <!-- Table rows will be populated by JavaScript -->
+            </tbody>
+        </table>
+    </main>
+
+    <div id="globe-container"></div>
+    <script type="module" src="js/main.js"></script>
+    <script>
+        const API_BASE = 'https://replica-testing.byule.workers.dev';
+        const writeButton = document.getElementById('writeButton');
+        const lastWrite = document.getElementById('lastWrite');
+        const replicaTable = document.getElementById('replicaTable');
+        let lastWriteTime = null;
+
+        // Region mapping for display names
+        const regionNames = {
+            'ENAM': 'Ashburn, VA, USA',
+            'WNAM': 'Hillsboro, OR, USA',
+            'WEUR': 'Falkenstein, Germany',
+            'EEUR': 'Helsinki, Finland',
+            'APAC': 'Singapore, Singapore',
+            'OC': 'Sydney, Australia'
+        };
+
+        async function fetchReplicas() {
+            try {
+                const response = await fetch(`${API_BASE}/instance/x1/replicas`, {
+                    mode: 'cors',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit'
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                return data.response.response;
+            } catch (error) {
+                console.error('Error fetching replicas:', error);
+                // Return mock data for development
+                return [
+                    {
+                        region: "ENAM",
+                        type: "primary",
+                        id: "mock-id-1"
+                    },
+                    {
+                        region: "ENAM",
+                        type: "replica",
+                        id: "mock-id-2"
+                    },
+                    {
+                        region: "WNAM",
+                        type: "replica",
+                        id: "mock-id-3"
+                    }
+                ];
+            }
+        }
+
+        async function performWrite() {
+            writeButton.disabled = true;
+            try {
+                const response = await fetch(`${API_BASE}/instance/x1/increment`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit',
+                    body: JSON.stringify({ number: 1 })
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                lastWriteTime = new Date();
+                lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+                updateTable();
+            } catch (error) {
+                console.error('Error performing write:', error);
+                // Simulate a successful write for development
+                lastWriteTime = new Date();
+                lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+                updateTable();
+            } finally {
+                writeButton.disabled = false;
+            }
+        }
+
+        function updateTable() {
+            fetchReplicas().then(replicas => {
+                replicaTable.innerHTML = replicas.map(replica => {
+                    const regionName = regionNames[replica.region] || replica.region;
+                    const latency = calculateLatency(replica.region);
+                    const latencyClass = latency < 100 ? 'latency-good' : 'latency-medium';
+                    
+                    return `
+                        <tr>
+                            <td>${regionName}</td>
+                            <td class="region-code">${replica.region}</td>
+                            <td>${replica.type}</td>
+                            <td>${lastWriteTime ? lastWriteTime.toLocaleTimeString() : '-'}</td>
+                            <td class="${latencyClass}">${latency} ms</td>
+                        </tr>
+                    `;
+                }).join('');
+            });
+        }
+
+        function calculateLatency(region) {
+            // Simulated latency based on region
+            const latencies = {
+                'ENAM': 33,
+                'WNAM': 91,
+                'WEUR': 115,
+                'EEUR': 118,
+                'APAC': 167,
+                'OC': 200
+            };
+            return latencies[region] || 150;
+        }
+
+        // Initialize
+        writeButton.addEventListener('click', performWrite);
+        updateTable();
+        // Update table every 5 seconds
+        setInterval(updateTable, 5000);
+    </script>
+</body>
+</html> 

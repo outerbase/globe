@@ -1,0 +1,13 @@
+{
+  "name": "ascii-globe-web",
+  "version": "1.0.0",
+  "description": "ASCII Globe renderer for the web",
+  "main": "server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+} 
