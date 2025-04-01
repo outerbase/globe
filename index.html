@@ -50,11 +50,11 @@
                 <tr>
                     <th class="title-col">Region</th>
                     <th>Code</th>
+                    <th>Latest</th>
+                    <th>Min</th>
                     <th>Mean</th>
                     <th>Median</th>
-                    <th>Min</th>
                     <!-- <th>Max</th> -->
-                    <th>Latest</th>
                 </tr>
             </thead>
             <tbody id="replicaTable">
@@ -198,20 +198,33 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
 
         function updateTable() {
             const results = window.latencyResults || [];
-            console.log('regionData:', regionData);
-            console.log('results:', results);
+            const previousRows = Array.from(replicaTable.querySelectorAll('tr')).map(row => ({
+                colo: row.querySelector('.region-code').textContent,
+                latest: row.querySelectorAll('td')[2].textContent.replace(' ms', ''),
+                min: row.querySelectorAll('td')[3].textContent.replace(' ms', ''),
+                mean: row.querySelectorAll('td')[4].textContent.replace(' ms', ''),
+                median: row.querySelectorAll('td')[5].textContent.replace(' ms', '')
+            }));
+
             replicaTable.innerHTML = results.map(result => {
                 const location = regionData.find(loc => loc.iata === result.colo);
                 const locationName = location ? `${location.city}, ${location.cca2}, ${location.region}` : result.colo;
-                
                 const stats = calculateStats(latencyHistory[result.colo]);
                 
-                const wrapInFlip = (value, unit = '') => {
-                    if (value === '-') return '-';
+                const previousValues = previousRows.find(row => row.colo === result.colo) || {
+                    latest: '-', min: '-', mean: '-', median: '-'
+                };
+
+                const wrapInFlip = (newValue, previousValue, unit = '') => {
+                    if (newValue === '-') return '-';
                     return `<span class="flip-number">${
-                        value.toString()
+                        newValue.toString()
                             .split('')
-                            .map((digit, i) => `<span class="flip-digit" style="animation-delay: ${i * 0.1}s">${digit}</span>`)
+                            .map((digit, i) => {
+                                const previousDigit = previousValue.toString()[i];
+                                const shouldAnimate = previousDigit !== digit;
+                                return `<span class="flip-digit${shouldAnimate ? ' updating' : ''}" style="animation-delay: ${i * 0.1}s">${digit}</span>`;
+                            })
                             .join('')
                     }</span>${unit}`;
                 };
@@ -220,19 +233,16 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                     <tr>
                         <td class="title-col">${locationName}</td>
                         <td class="region-code">${result.colo}</td>
-                        <td class="normal-col ${getLatencyClass(stats.mean)}">${wrapInFlip(stats.mean, ' ms')}</td>
-                        <td class="normal-col ${getLatencyClass(stats.median)}">${wrapInFlip(stats.median, ' ms')}</td>
-                        <td class="normal-col ${getLatencyClass(stats.min)}">${wrapInFlip(stats.min, ' ms')}</td>
-                        
-                        <td class="normal-col ${getLatencyClass(result.latency)}">${wrapInFlip(result.latency, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(result.latency)}">${wrapInFlip(result.latency, previousValues.latest, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.min)}">${wrapInFlip(stats.min, previousValues.min, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.mean)}">${wrapInFlip(stats.mean, previousValues.mean, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.median)}">${wrapInFlip(stats.median, previousValues.median, ' ms')}</td>
                     </tr>
                 `;
-                // <td class="normal-col ${getLatencyClass(stats.max)}">${wrapInFlip(stats.max, ' ms')}</td>
             }).join('');
 
-            // Add animation class to new numbers
-            document.querySelectorAll('.flip-digit').forEach(el => {
-                el.classList.add('updating');
+            // Remove animation class after animation completes
+            document.querySelectorAll('.flip-digit.updating').forEach(el => {
                 el.addEventListener('animationend', () => {
                     el.classList.remove('updating');
                 }, { once: true });
