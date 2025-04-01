@@ -273,17 +273,18 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                     clearInterval(writeInterval);
                 }
                 
-                // Handle visibility changes
-                document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) {
-                        stopWrites();
-                    } else {
-                        startWrites();
-                    }
+                // Handle window focus/blur
+                window.addEventListener('focus', () => {
+                    performWrite(true);  // Immediate write
+                    startWrites();       // Start interval
                 });
                 
-                // Start writes if page is visible
-                if (!document.hidden) {
+                window.addEventListener('blur', () => {
+                    stopWrites();
+                });
+                
+                // Start writes if window is focused
+                if (document.hasFocus()) {
                     startWrites();
                 }
             }, 100);
