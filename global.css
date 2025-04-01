@@ -140,7 +140,7 @@ h1 {
     display: flex;
     gap: 1rem;
     align-items: center;
-    margin-bottom: 16px;
+    margin-bottom: 32px;
     /* justify-content: flex-end; */
     max-width: 1080px;
 }
