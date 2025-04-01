@@ -27,7 +27,7 @@
         </p>
         
         <div class="controls">
-            <button class="write-button" id="writeButton">Click to try</button>
+            <button class="write-button" id="writeButton">Get started</button>
             <button class="code-button" id="writeButton">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
                     <line x1="8" y1="2.5" x2="8" y2="13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
@@ -54,6 +54,15 @@
                 <!-- Table rows will be populated by JavaScript -->
             </tbody>
         </table>
+
+        <div class="get-started">
+            <h2>How to get started</h2>
+            <p class="description">
+                Today you can create new or enable existing D1 databases with global read replication. Users will be
+                routed to the nearest D1 replica instance and benefit from the fastest read speeds. All write operations
+                will first be performed on the primary instance and then replicated to other regions.
+            </p>
+        </div>
     </main>
 
     <!-- <div id="globe-container"></div> -->
@@ -196,13 +205,40 @@
         // Initialize
         loadLocations().then(async () => {
             writeButton.addEventListener('click', () => performWrite(true));
+            
             // Perform a warm-up write without recording data or rendering
             latencyHistory = {}; // Clear any existing history
             await performWrite(false);
-            // Small delay before the actual first write
+            
+            // Small delay before starting the periodic writes
             setTimeout(() => {
-                latencyHistory = {}; // Reset history before the real measurement
+                latencyHistory = {}; // Reset history before the real measurements
                 performWrite(true);
+                
+                // Set up periodic writes
+                let writeInterval;
+                
+                function startWrites() {
+                    writeInterval = setInterval(() => performWrite(true), 5000);
+                }
+                
+                function stopWrites() {
+                    clearInterval(writeInterval);
+                }
+                
+                // Handle visibility changes
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        stopWrites();
+                    } else {
+                        startWrites();
+                    }
+                });
+                
+                // Start writes if page is visible
+                if (!document.hidden) {
+                    startWrites();
+                }
             }, 100);
         });
     </script>

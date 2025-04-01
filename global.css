@@ -20,6 +20,7 @@ body {
     padding: 0;
     position: relative;
     background-image: url('./public/img/space-port.webp');
+    /* background-image: url('/img/space-port.webp'); */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -348,4 +349,8 @@ tr:hover td {
     50% {
         transform: translateY(2px);
     }
+}
+
+.get-started {
+    margin-top: 64px;
 }
