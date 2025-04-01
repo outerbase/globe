@@ -1,0 +1,228 @@
+@font-face {
+    font-family: 'Departure Mono';
+    src: url('departuremono.otf') format('opentype');
+}
+
+@font-face {
+    font-family: 'Inter';
+    src: url('https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(to bottom right, #0A0A0A, #171717);
+    color: #fff;
+    /* font-family: 'Departure Mono', monospace; */
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 3rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+.logo img {
+    height: 24px;
+}
+
+.auth-buttons {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.auth-buttons button {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    /* font-family: 'Courier New', monospace; */
+}
+
+.sign-in {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+}
+
+.sign-up {
+    background: #f6821f;
+    border: none;
+    color: #fff;
+}
+
+.main-content {
+    margin-top: 100px;
+    padding: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.breadcrumb {
+    display: inline;
+    background: rgba(98, 98, 98, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    border-radius: 999px;
+    padding: 6px 20px;
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: 400;
+    letter-spacing: 0.4px;
+    font-family: 'Inter', sans-serif;
+}
+
+h1 {
+    font-size: 64px;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    font-family: 'Inter', sans-serif;
+}
+
+.description {
+    color: white;
+    margin-bottom: 2.5rem;
+    max-width: 700px;
+    line-height: 30px;
+    font-size: 20px;
+}
+
+.controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 3rem;
+}
+
+.write-button {
+    background: #f6821f;
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    /* font-family: 'Courier New', monospace; */
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+    letter-spacing: 0.3px;
+}
+
+.write-button:hover {
+    background: #e67a1f;
+}
+
+.write-button:disabled {
+    background: #666;
+    cursor: not-allowed;
+}
+
+.last-write {
+    color: #888;
+    font-size: 0.85rem;
+    letter-spacing: 0.2px;
+}
+
+table {
+    max-width: 700px;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.85rem;
+    table-layout: fixed;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+th {
+    color: #888;
+    font-weight: normal;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+td {
+    font-size: 16px;
+    /* font-weight: 600; */
+    font-family: 'Departure Mono', monospace; 
+    /* font-family: 'Courier New', monospace; */
+}
+
+.title-col {
+    width: 300px;
+    min-width: 300px;
+    max-width: 300px;
+    font-family: 'Inter', sans-serif !important;
+}
+
+.normal-col {
+    width: 100px;
+    min-width: 100px;
+    max-width: 100px;
+}
+
+/* Column widths */
+th:nth-child(1), td:nth-child(1) { width: 30%; }
+th:nth-child(2), td:nth-child(2) { width: 15%; }
+th:nth-child(3), td:nth-child(3) { width: 20%; }
+th:nth-child(4), td:nth-child(4) { width: 20%; }
+th:nth-child(5), td:nth-child(5) { width: 15%; }
+
+.latency-good {
+    color: #00cc66;
+}
+
+.latency-medium {
+    color: #f6821f;
+}
+
+.latency-poor {
+    color: #ff3366;
+}
+
+.region-code {
+    color: white;
+}
+
+#globe-container {
+    white-space: pre;
+    font-size: 8px;
+    line-height: 8px;
+    letter-spacing: 2.5px;
+    font-family: monospace;
+    position: fixed;
+    bottom: -500px;
+    right: -600px;
+    transform: scale(2.5) translateX(15%);
+    transform-origin: bottom right;
+    opacity: 0.35;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Add subtle hover effect on table rows */
+tr:hover td {
+    background: rgba(255, 255, 255, 0.03);
+}

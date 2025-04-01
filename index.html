@@ -4,199 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>D1 Read Replicas - Cloudflare</title>
-    <style>
-
-@font-face {
-            font-family: 'Departure Mono';
-            src: url('departuremono.otf') format('opentype');
-        }
-        
-        body {
-            margin: 0;
-            padding: 0;
-            background: #000;
-            color: #fff;
-            font-family: 'Departure Mono', monospace;
-            overflow-x: hidden;
-            position: relative;
-            min-height: 100vh;
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 1.5rem 3rem;
-            background: rgba(0, 0, 0, 0.9);
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .logo img {
-            height: 24px;
-        }
-
-        .auth-buttons {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-        }
-
-        .auth-buttons button {
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-        }
-
-        .sign-in {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #fff;
-        }
-
-        .sign-up {
-            background: #f6821f;
-            border: none;
-            color: #fff;
-        }
-
-        .main-content {
-            margin-top: 100px;
-            padding: 3rem;
-            max-width: 1080px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .breadcrumb {
-            color: #888;
-            margin-bottom: 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-            font-weight: normal;
-            letter-spacing: -0.5px;
-        }
-
-        .description {
-            color: #888;
-            margin-bottom: 2.5rem;
-            max-width: 700px;
-            line-height: 1.6;
-            font-size: 0.95rem;
-        }
-
-        .controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 3rem;
-        }
-
-        .write-button {
-            background: #f6821f;
-            color: #fff;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            transition: background-color 0.2s;
-            letter-spacing: 0.3px;
-        }
-
-        .write-button:hover {
-            background: #e67a1f;
-        }
-
-        .write-button:disabled {
-            background: #666;
-            cursor: not-allowed;
-        }
-
-        .last-write {
-            color: #888;
-            font-size: 0.85rem;
-            letter-spacing: 0.2px;
-        }
-
-        table {
-            max-width: 700px;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            table-layout: fixed;
-        }
-
-        th, td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        th {
-            color: #888;
-            font-weight: normal;
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        td {
-            font-family: 'Courier New', monospace;
-        }
-
-        /* Column widths */
-        th:nth-child(1), td:nth-child(1) { width: 30%; }
-        th:nth-child(2), td:nth-child(2) { width: 15%; }
-        th:nth-child(3), td:nth-child(3) { width: 20%; }
-        th:nth-child(4), td:nth-child(4) { width: 20%; }
-        th:nth-child(5), td:nth-child(5) { width: 15%; }
-
-        .latency-good {
-            color: #00cc66;
-        }
-
-        .latency-medium {
-            color: #f6821f;
-        }
-
-        .region-code {
-            color: #888;
-            font-size: 0.85rem;
-        }
-
-        #globe-container {
-            white-space: pre;
-            font-size: 8px;
-            line-height: 8px;
-            letter-spacing: 2.5px;
-            font-family: monospace;
-            position: fixed;
-            bottom: -500px;
-            right: -600px;
-            transform: scale(2.5) translateX(15%);
-            transform-origin: bottom right;
-            opacity: 0.35;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Add subtle hover effect on table rows */
-        tr:hover td {
-            background: rgba(255, 255, 255, 0.03);
-        }
-    </style>
+    <link rel="stylesheet" href="global.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <header class="header">
@@ -210,7 +19,7 @@
     </header>
 
     <main class="main-content">
-        <div class="breadcrumb">› Introducing</div>
+        <div class="breadcrumb">Introducing</div>
         <h1>D1 Read Replicas</h1>
         <p class="description">
             Watch how quickly writes propagate across our global network of read replicas. 
@@ -225,11 +34,13 @@
         <table>
             <thead>
                 <tr>
-                    <th>Region</th>
+                    <th class="title-col">Region</th>
                     <th>Code</th>
-                    <th>Type</th>
-                    <th>Last Update</th>
-                    <th>Latency</th>
+                    <th>Mean</th>
+                    <th>Median</th>
+                    <th>Min</th>
+                    <th>Max</th>
+                    <th>Latest</th>
                 </tr>
             </thead>
             <tbody id="replicaTable">
@@ -241,125 +52,175 @@
     <div id="globe-container"></div>
     <script type="module" src="js/main.js"></script>
     <script>
-        const API_BASE = 'https://replica-testing.byule.workers.dev';
+        const API_BASE = 'https://replication-regions.brayden-b8b.workers.dev';
         const writeButton = document.getElementById('writeButton');
         const lastWrite = document.getElementById('lastWrite');
         const replicaTable = document.getElementById('replicaTable');
         let lastWriteTime = null;
+        let regionData = {};
+        // Add storage for historical latency values
+        let latencyHistory = {};
 
-        // Region mapping for display names
-        const regionNames = {
-            'ENAM': 'Ashburn, VA, USA',
-            'WNAM': 'Hillsboro, OR, USA',
-            'WEUR': 'Falkenstein, Germany',
-            'EEUR': 'Helsinki, Finland',
-            'APAC': 'Singapore, Singapore',
-            'OC': 'Sydney, Australia'
-        };
+        // Fetch locations data
+        async function loadLocations() {
+            try {
+                const response = await fetch('/locations.json');
+                const data = await response.json();
+                regionData = data
+                // regionData = data.reduce((acc, location) => {
+                //     acc[location.region.toUpperCase()] = `${location.city}, ${location.state}, ${location.country}`;
+                //     return acc;
+                // }, {});
+                // console.log('loadLocations: ', data)
+            } catch (error) {
+                console.error('Error loading locations:', error);
+                // Fallback to existing mapping if load fails
+                regionData = {
+                    'ENAM': 'Ashburn, VA, USA',
+                    'WNAM': 'Hillsboro, OR, USA',
+                    'WEUR': 'Falkenstein, Germany',
+                    'EEUR': 'Helsinki, Finland',
+                    'APAC': 'Singapore, Singapore',
+                    'OC': 'Sydney, Australia'
+                };
+            }
+        }
 
         async function fetchReplicas() {
-            try {
-                const response = await fetch(`${API_BASE}/instance/x1/replicas`, {
-                    mode: 'cors',
-                    headers: {
-                        'Accept': '*/*',
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'omit'
-                });
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                return data.response.response;
-            } catch (error) {
-                console.error('Error fetching replicas:', error);
-                // Return mock data for development
-                return [
-                    {
-                        region: "ENAM",
-                        type: "primary",
-                        id: "mock-id-1"
-                    },
-                    {
-                        region: "ENAM",
-                        type: "replica",
-                        id: "mock-id-2"
-                    },
-                    {
-                        region: "WNAM",
-                        type: "replica",
-                        id: "mock-id-3"
-                    }
-                ];
-            }
+            // try {
+            //     const response = await fetch(`${API_BASE}/instance/x1/replicas`, {
+            //         mode: 'cors',
+            //         headers: {
+            //             'Accept': '*/*',
+            //             'Content-Type': 'application/json',
+            //         },
+            //         credentials: 'omit'
+            //     });
+            //     if (!response.ok) throw new Error('Network response was not ok');
+            //     const data = await response.json();
+            //     return data.response.response;
+            // } catch (error) {
+            //     console.error('Error fetching replicas:', error);
+            //     // Return mock data for development
+            //     return [
+            //         {
+            //             region: "ENAM",
+            //             type: "primary",
+            //             id: "mock-id-1"
+            //         },
+            //         {
+            //             region: "ENAM",
+            //             type: "replica",
+            //             id: "mock-id-2"
+            //         },
+            //         {
+            //             region: "WNAM",
+            //             type: "replica",
+            //             id: "mock-id-3"
+            //         }
+            //     ];
+            // }
         }
 
         async function performWrite() {
             writeButton.disabled = true;
+            const regions = ['wnam', 'enam', 'weur', 'eeur', 'apac', 'oc'];
+            lastWriteTime = new Date();
+            lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+
             try {
-                const response = await fetch(`${API_BASE}/instance/x1/increment`, {
-                    method: 'POST',
-                    mode: 'cors',
-                    headers: {
-                        'Accept': '*/*',
-                        'Content-Type': 'application/json',
-                    },
-                    credentials: 'omit',
-                    body: JSON.stringify({ number: 1 })
+                const requests = regions.map(region => {
+                    const startTime = performance.now();
+                    return fetch(`${API_BASE}`, {
+                        method: 'POST',
+                        mode: 'cors',
+                        headers: {
+                            'Accept': '*/*',
+                            'Content-Type': 'application/json',
+                        },
+                        credentials: 'omit',
+                        body: JSON.stringify({ region })
+                    })
+                    .then(async response => {
+                        const endTime = performance.now();
+                        if (!response.ok) throw new Error(`Network response was not ok for ${region}`);
+                        const data = await response.json();
+                        const latency = Math.round(endTime - startTime);
+                        
+                        // Store latency in history
+                        if (!latencyHistory[data.colo]) {
+                            latencyHistory[data.colo] = [];
+                        }
+                        latencyHistory[data.colo].push(latency);
+                        
+                        return {
+                            region: region.toUpperCase(),
+                            latency: latency,
+                            colo: data.colo
+                        };
+                    });
                 });
-                if (!response.ok) throw new Error('Network response was not ok');
-                const data = await response.json();
-                lastWriteTime = new Date();
-                lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+
+                const results = await Promise.all(requests);
+                window.latencyResults = results;
                 updateTable();
             } catch (error) {
-                console.error('Error performing write:', error);
-                // Simulate a successful write for development
-                lastWriteTime = new Date();
-                lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
-                updateTable();
+                console.error('Error performing writes:', error);
             } finally {
                 writeButton.disabled = false;
             }
         }
 
-        function updateTable() {
-            fetchReplicas().then(replicas => {
-                replicaTable.innerHTML = replicas.map(replica => {
-                    const regionName = regionNames[replica.region] || replica.region;
-                    const latency = calculateLatency(replica.region);
-                    const latencyClass = latency < 100 ? 'latency-good' : 'latency-medium';
-                    
-                    return `
-                        <tr>
-                            <td>${regionName}</td>
-                            <td class="region-code">${replica.region}</td>
-                            <td>${replica.type}</td>
-                            <td>${lastWriteTime ? lastWriteTime.toLocaleTimeString() : '-'}</td>
-                            <td class="${latencyClass}">${latency} ms</td>
-                        </tr>
-                    `;
-                }).join('');
-            });
+        function calculateStats(latencies) {
+            if (!latencies || latencies.length === 0) return { mean: '-', median: '-', min: '-', max: '-' };
+            
+            const mean = Math.round(latencies.reduce((a, b) => a + b, 0) / latencies.length);
+            const sorted = [...latencies].sort((a, b) => a - b);
+            const median = Math.round(sorted[Math.floor(sorted.length / 2)]);
+            const min = Math.min(...latencies);
+            const max = Math.max(...latencies);
+            
+            return { mean, median, min, max };
         }
 
-        function calculateLatency(region) {
-            // Simulated latency based on region
-            const latencies = {
-                'ENAM': 33,
-                'WNAM': 91,
-                'WEUR': 115,
-                'EEUR': 118,
-                'APAC': 167,
-                'OC': 200
-            };
-            return latencies[region] || 150;
+        function getLatencyClass(value) {
+            if (value === '-') return '';
+            if (value < 100) return 'latency-good';
+            if (value < 200) return 'latency-medium';
+            return 'latency-poor';
+        }
+
+        function updateTable() {
+            const results = window.latencyResults || [];
+            console.log('regionData:', regionData);
+            console.log('results:', results);
+            replicaTable.innerHTML = results.map(result => {
+                const location = regionData.find(loc => loc.iata === result.colo);
+                const locationName = location ? `${location.city}, ${location.cca2}, ${location.region}` : result.colo;
+                
+                const stats = calculateStats(latencyHistory[result.colo]);
+
+                return `
+                    <tr>
+                        <td class="title-col">${locationName}</td>
+                        <td class="region-code">${result.colo}</td>
+                        <td class="normal-col ${getLatencyClass(stats.mean)}">${stats.mean} ${stats.mean !== '-' ? 'ms' : ''}</td>
+                        <td class="normal-col ${getLatencyClass(stats.median)}">${stats.median} ${stats.median !== '-' ? 'ms' : ''}</td>
+                        <td class="normal-col ${getLatencyClass(stats.min)}">${stats.min} ${stats.min !== '-' ? 'ms' : ''}</td>
+                        <td class="normal-col ${getLatencyClass(stats.max)}">${stats.max} ${stats.max !== '-' ? 'ms' : ''}</td>
+                        <td class="normal-col ${getLatencyClass(result.latency)}">${result.latency} ms</td>
+                    </tr>
+                `;
+            }).join('');
         }
 
         // Initialize
-        writeButton.addEventListener('click', performWrite);
-        updateTable();
-        // Update table every 5 seconds
-        setInterval(updateTable, 5000);
+        loadLocations().then(() => {
+            writeButton.addEventListener('click', performWrite);
+            updateTable();
+            // Update table every 5 seconds
+            // setInterval(updateTable, 5000);
+        });
     </script>
 </body>
 </html> 
