@@ -91,11 +91,14 @@ curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/datab
 const bookmark = request.headers.get('x-d1-bookmark') ?? 'first-unconstrained';
 const session = env.DB.withSession(bookmark)
 
+// Since this is a write query, D1 will transparently forward the query.
 await session
     .prepare("INSERT INTO Orders VALUES (?, ?, ?) ON CONFLICT DO NOTHING")
     .bind(order.customerId, order.orderId, order.quantity)
     .run();
 
+// In order for the application to be correct, this SELECT
+// statement must see the results of the INSERT statement above.
 const result = await session.prepare("SELECT * FROM Orders").all();
 
 // Store bookmark for a future session
