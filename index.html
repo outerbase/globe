@@ -12,10 +12,10 @@
         <div class="logo">
             <img src="cloudflare.svg" alt="Cloudflare">
         </div>
-        <div class="auth-buttons">
+        <!-- <div class="auth-buttons">
             <button class="sign-in">Sign In</button>
             <button class="sign-up">Sign Up</button>
-        </div>
+        </div> -->
     </header>
 
     <main class="main-content">
@@ -28,7 +28,7 @@
         
         <div class="controls">
             <button class="write-button" id="writeButton">Perform Write</button>
-            <span class="last-write" id="lastWrite"></span>
+            <!-- <span class="last-write" id="lastWrite"></span> -->
         </div>
 
         <table>
@@ -49,7 +49,7 @@
         </table>
     </main>
 
-    <div id="globe-container"></div>
+    <!-- <div id="globe-container"></div> -->
     <script type="module" src="js/main.js"></script>
     <script>
         const API_BASE = 'https://replication-regions.brayden-b8b.workers.dev';
@@ -78,7 +78,7 @@
             writeButton.disabled = true;
             const regions = ['wnam', 'enam', 'weur', 'eeur', 'apac', 'oc'];
             lastWriteTime = new Date();
-            lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+            // lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
 
             try {
                 const requests = regions.map(region => {
@@ -97,7 +97,7 @@
                         const endTime = performance.now();
                         if (!response.ok) throw new Error(`Network response was not ok for ${region}`);
                         const data = await response.json();
-                        const latency = Math.round(endTime - startTime);
+                        const latency = Math.round(endTime - startTime - data.subtract);
                         
                         // Store latency in history
                         if (!latencyHistory[data.colo]) {
