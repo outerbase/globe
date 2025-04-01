@@ -34,6 +34,7 @@
             <!-- <button class="write-button" id="writeButton">Get started</button> -->
             <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/staging/d1-starter-sessions-api" target="_blank">
                 <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare Workers" style="max-width: 200px;">
+                <!-- <img src="./public/img/deploy.svg" alt="Deploy to Cloudflare Workers" style="max-width: 200px;"> -->
             </a>
             
             <button class="code-button" id="writeButton" onclick="document.querySelector('.get-started').scrollIntoView({behavior: 'smooth'})">
@@ -86,15 +87,18 @@ curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/datab
             </p>
 
             <div>
-                <pre class="code-block"><button class="copy-button">Copy</button><code class="language-typescript">// retrieve bookmark from previous session stored in HTTP header
+                <pre class="code-block"><button class="copy-button">Copy</button><code class="language-typescript">// Retrieve bookmark from previous session stored in HTTP header
 const bookmark = request.headers.get('x-d1-bookmark') ?? 'first-unconstrained';
-
 const session = env.DB.withSession(bookmark)
-const result = await session
-    .prepare(`SELECT * FROM Customers WHERE CompanyName = 'Bs Beverages'`)
-    .run()
 
-// store bookmark for a future session
+await session
+    .prepare("INSERT INTO Orders VALUES (?, ?, ?) ON CONFLICT DO NOTHING")
+    .bind(order.customerId, order.orderId, order.quantity)
+    .run();
+
+const result = await session.prepare("SELECT * FROM Orders").all();
+
+// Store bookmark for a future session
 response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
 </code></pre>
             </div>
