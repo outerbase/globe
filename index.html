@@ -66,63 +66,15 @@
             try {
                 const response = await fetch('/locations.json');
                 const data = await response.json();
-                regionData = data
-                // regionData = data.reduce((acc, location) => {
-                //     acc[location.region.toUpperCase()] = `${location.city}, ${location.state}, ${location.country}`;
-                //     return acc;
-                // }, {});
-                // console.log('loadLocations: ', data)
+                regionData = data;
             } catch (error) {
                 console.error('Error loading locations:', error);
                 // Fallback to existing mapping if load fails
-                regionData = {
-                    'ENAM': 'Ashburn, VA, USA',
-                    'WNAM': 'Hillsboro, OR, USA',
-                    'WEUR': 'Falkenstein, Germany',
-                    'EEUR': 'Helsinki, Finland',
-                    'APAC': 'Singapore, Singapore',
-                    'OC': 'Sydney, Australia'
-                };
+                regionData = {};
             }
         }
 
-        async function fetchReplicas() {
-            // try {
-            //     const response = await fetch(`${API_BASE}/instance/x1/replicas`, {
-            //         mode: 'cors',
-            //         headers: {
-            //             'Accept': '*/*',
-            //             'Content-Type': 'application/json',
-            //         },
-            //         credentials: 'omit'
-            //     });
-            //     if (!response.ok) throw new Error('Network response was not ok');
-            //     const data = await response.json();
-            //     return data.response.response;
-            // } catch (error) {
-            //     console.error('Error fetching replicas:', error);
-            //     // Return mock data for development
-            //     return [
-            //         {
-            //             region: "ENAM",
-            //             type: "primary",
-            //             id: "mock-id-1"
-            //         },
-            //         {
-            //             region: "ENAM",
-            //             type: "replica",
-            //             id: "mock-id-2"
-            //         },
-            //         {
-            //             region: "WNAM",
-            //             type: "replica",
-            //             id: "mock-id-3"
-            //         }
-            //     ];
-            // }
-        }
-
-        async function performWrite() {
+        async function performWrite(renderResults = true) {
             writeButton.disabled = true;
             const regions = ['wnam', 'enam', 'weur', 'eeur', 'apac', 'oc'];
             lastWriteTime = new Date();
@@ -163,7 +115,9 @@
 
                 const results = await Promise.all(requests);
                 window.latencyResults = results;
-                updateTable();
+                if (renderResults) {
+                    updateTable();
+                }
             } catch (error) {
                 console.error('Error performing writes:', error);
             } finally {
@@ -199,27 +153,50 @@
                 const locationName = location ? `${location.city}, ${location.cca2}, ${location.region}` : result.colo;
                 
                 const stats = calculateStats(latencyHistory[result.colo]);
+                
+                const wrapInFlip = (value, unit = '') => {
+                    if (value === '-') return '-';
+                    return `<span class="flip-number">${
+                        value.toString()
+                            .split('')
+                            .map((digit, i) => `<span class="flip-digit" style="animation-delay: ${i * 0.1}s">${digit}</span>`)
+                            .join('')
+                    }</span>${unit}`;
+                };
 
                 return `
                     <tr>
                         <td class="title-col">${locationName}</td>
                         <td class="region-code">${result.colo}</td>
-                        <td class="normal-col ${getLatencyClass(stats.mean)}">${stats.mean} ${stats.mean !== '-' ? 'ms' : ''}</td>
-                        <td class="normal-col ${getLatencyClass(stats.median)}">${stats.median} ${stats.median !== '-' ? 'ms' : ''}</td>
-                        <td class="normal-col ${getLatencyClass(stats.min)}">${stats.min} ${stats.min !== '-' ? 'ms' : ''}</td>
-                        <td class="normal-col ${getLatencyClass(stats.max)}">${stats.max} ${stats.max !== '-' ? 'ms' : ''}</td>
-                        <td class="normal-col ${getLatencyClass(result.latency)}">${result.latency} ms</td>
+                        <td class="normal-col ${getLatencyClass(stats.mean)}">${wrapInFlip(stats.mean, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.median)}">${wrapInFlip(stats.median, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.min)}">${wrapInFlip(stats.min, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(stats.max)}">${wrapInFlip(stats.max, ' ms')}</td>
+                        <td class="normal-col ${getLatencyClass(result.latency)}">${wrapInFlip(result.latency, ' ms')}</td>
                     </tr>
                 `;
             }).join('');
+
+            // Add animation class to new numbers
+            document.querySelectorAll('.flip-digit').forEach(el => {
+                el.classList.add('updating');
+                el.addEventListener('animationend', () => {
+                    el.classList.remove('updating');
+                }, { once: true });
+            });
         }
 
         // Initialize
-        loadLocations().then(() => {
-            writeButton.addEventListener('click', performWrite);
-            updateTable();
-            // Update table every 5 seconds
-            // setInterval(updateTable, 5000);
+        loadLocations().then(async () => {
+            writeButton.addEventListener('click', () => performWrite(true));
+            // Perform a warm-up write without recording data or rendering
+            latencyHistory = {}; // Clear any existing history
+            await performWrite(false);
+            // Small delay before the actual first write
+            setTimeout(() => {
+                latencyHistory = {}; // Reset history before the real measurement
+                performWrite(true);
+            }, 100);
         });
     </script>
 </body>
