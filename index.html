@@ -320,6 +320,16 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                 button.textContent = 'Copy';
             }, 2000);
         });
+
+        // Handle header background on scroll
+        const header = document.querySelector('.header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 200) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 </html> 

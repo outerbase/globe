@@ -67,6 +67,27 @@ body::before {
     left: 0;
     right: 0;
     z-index: 100;
+    transition: opacity 0.3s ease;
+}
+
+.header.scrolled {
+    opacity: 0;
+    animation: fadeInGradient 0.3s ease forwards;
+    background: #0A0A0A;
+    /* background: linear-gradient(to bottom,
+        rgba(0, 0, 0, 0.9) 0%,
+        rgba(0, 0, 0, 0.7) 80%,
+        rgba(0, 0, 0, 0) 150%
+    ); */
+}
+
+@keyframes fadeInGradient {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
 .logo img {
