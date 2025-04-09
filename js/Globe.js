@@ -1,5 +1,6 @@
 export class Globe {
-    constructor(width = 80, height = 40) {
+    constructor(container, width = 80, height = 40) {
+        this.container = container;
         this.width = width;
         this.height = height;
         this.radius = Math.min(width, height) / 3;
@@ -14,15 +15,77 @@ export class Globe {
         this.texture = null;
         this.textureWidth = 1;
         this.textureHeight = 0;
+        this.animationFrame = null;
+        this.isAnimating = true;
+        this.targetRotation = null;
         
         // ASCII shading characters from darkest to lightest
-        this.shades = [' ', '.', ':', '-', '=', '+', '*', '#', '%', '@'];
+        this.shades = ['░', '▒', '▓', '█', '█', '█', '█', '█', '█', '█'];
         
         // Create sphere points with UV coordinates
         this.points = this.createSpherePoints();
         
         // Load the texture
         this.loadTexture();
+        
+        // Start animation
+        this.startAnimation();
+    }
+
+    startAnimation() {
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+        }
+        
+        this.isAnimating = true;
+        this.targetRotation = null;
+        
+        const animate = () => {
+            if (this.isAnimating) {
+                if (this.targetRotation) {
+                    // Smoothly rotate to target
+                    const dx = (this.targetRotation.x - this.angleX) * 0.1;
+                    const dy = (this.targetRotation.y - this.angleY) * 0.1;
+                    
+                    this.angleX += dx;
+                    this.angleY += dy;
+                    
+                    // Check if we've reached the target
+                    if (Math.abs(dx) < 0.001 && Math.abs(dy) < 0.001) {
+                        this.targetRotation = null;
+                    }
+                } else {
+                    // Auto-rotate the globe
+                    this.rotate(0, 0.003, 0);
+                }
+                
+                // Render the globe
+                const asciiOutput = this.render();
+                if (this.container) {
+                    this.container.innerHTML = `<pre>${asciiOutput}</pre>`;
+                }
+                
+                this.animationFrame = requestAnimationFrame(animate);
+            }
+        };
+        
+        animate();
+    }
+
+    stopAnimation() {
+        this.isAnimating = false;
+        if (this.animationFrame) {
+            cancelAnimationFrame(this.animationFrame);
+            this.animationFrame = null;
+        }
+    }
+
+    setTargetRotation(x, y) {
+        this.targetRotation = { x, y };
+        this.isAnimating = true;
+        if (!this.animationFrame) {
+            this.startAnimation();
+        }
     }
 
     async loadTexture() {
