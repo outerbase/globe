@@ -6,10 +6,6 @@
     <title>D1 Read Replicas - Cloudflare</title>
     <link rel="stylesheet" href="global.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-tomorrow.min.css" rel="stylesheet" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/prism.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-typescript.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-bash.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -34,8 +30,8 @@
                 Speed up your queries in just a few clicks.
             </p>
             <div class="time-savings">
-                <div class="comparison">Queries are <span class="highlight savings-value">&nbsp;0ms&nbsp;</span> faster with your closest replica</div>
-                <div class="detail">Compared to querying the primary in Sydney, Australia (<span class="au-latency">-</span>ms)</div>
+                <div class="comparison">Queries are <span class="highlight savings-value">&nbsp; 0ms</span> faster with your closest replica</div>
+                <div class="detail">Compared to querying the primary in <span class="slowest-location">the furthest region</span> (<span class="slowest-latency">-</span>ms)</div>
             </div>
 
             <div class="controls" style="display: none;">
@@ -109,6 +105,7 @@
         <!-- Hidden container for mobile globes -->
         <div id="mobileGlobeContainer" style="position: absolute; pointer-events: none;"></div>
     </main>
+
     <script>
         function copyCode(button) {
             const codeBlock = button.closest('.code-block').querySelector('code');
@@ -129,7 +126,7 @@
     <script type="module">
         import { Globe } from './js/Globe.js';
 
-        const API_BASE = 'https://replication-regions.brayden-b8b.workers.dev';
+        const API_BASE = 'https://replication-regions.invisal.workers.dev';
         const writeButton = document.getElementById('writeButton');
         const lastWrite = document.getElementById('lastWrite');
         const regionsList = document.getElementById('regionsList');
@@ -161,9 +158,30 @@
             writeButton.disabled = true;
             const regions = ['wnam', 'enam', 'weur', 'eeur', 'apac', 'oc'];
             lastWriteTime = new Date();
-            // lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
+            lastWrite.textContent = `Last write: ${lastWriteTime.toLocaleTimeString()}`;
 
             try {
+                // First get the nearest region
+                const nearestResponse = await fetch(`${API_BASE}`, {
+                    method: 'POST',
+                    mode: 'cors',
+                    headers: {
+                        'Accept': '*/*',
+                        'Content-Type': 'application/json',
+                    },
+                    credentials: 'omit',
+                    body: JSON.stringify({ region: 'nearest' })
+                });
+                
+                if (!nearestResponse.ok) throw new Error('Network response was not ok for nearest');
+                const nearestData = await nearestResponse.json();
+                const nearestResult = {
+                    region: 'NEAREST',
+                    latency: nearestData.ping,
+                    colo: nearestData.colo
+                };
+
+                // Then get all other regions
                 const requests = regions.map(region => {
                     const startTime = performance.now();
                     return fetch(`${API_BASE}`, {
@@ -180,7 +198,7 @@
                         const endTime = performance.now();
                         if (!response.ok) throw new Error(`Network response was not ok for ${region}`);
                         const data = await response.json();
-                        const latency = Math.round(endTime - startTime - data.subtract);
+                        const latency = data.ping;
                         
                         if (!latencyHistory[data.colo]) {
                             latencyHistory[data.colo] = [];
@@ -196,7 +214,9 @@
                 });
 
                 const results = await Promise.all(requests);
-                window.latencyResults = results;
+                // Filter out any region that matches the nearest region's colo
+                const filteredResults = results.filter(result => result.colo !== nearestResult.colo);
+                window.latencyResults = [nearestResult, ...filteredResults];
                 if (renderResults) {
                     updateCards();
                     updateTimeSavings(results);
@@ -218,6 +238,19 @@
             const max = Math.max(...latencies);
             
             return { mean, median, min, max };
+        }
+
+        function calculateStability(latencies) {
+            if (!latencies || latencies.length < 2) return { level: 'unknown', cv: 0 };
+            
+            const mean = latencies.reduce((a, b) => a + b, 0) / latencies.length;
+            const variance = latencies.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / latencies.length;
+            const stdDev = Math.sqrt(variance);
+            const cv = stdDev / mean;
+            
+            if (cv < 0.1) return { level: 'high', cv };
+            if (cv < 0.2) return { level: 'medium', cv };
+            return { level: 'low', cv };
         }
 
         function getLatencyClass(value) {
@@ -267,6 +300,20 @@
             }
         }
 
+        function wrapInFlip(newValue, previousValue, unit = '') {
+            if (newValue === '-') return '-';
+            return `<span class="flip-number">${
+                newValue.toString()
+                    .split('')
+                    .map((digit, i) => {
+                        const previousDigit = previousValue.toString()[i];
+                        const shouldAnimate = previousDigit !== digit;
+                        return `<span class="flip-digit${shouldAnimate ? ' updating' : ''}" style="animation-delay: ${i * 0.1}s">${digit}</span>`;
+                    })
+                    .join('')
+            }</span>${unit}`;
+        }
+
         async function updateCards() {
             const results = window.latencyResults || [];
             
@@ -282,18 +329,30 @@
             // Initialize mobile globes if needed
             await initializeMobileGlobes();
             
-            // Find the fastest region
-            const fastestLatency = Math.min(...results.map(r => r.latency));
+            // Remove loading class from globe container
+            if (globeContainer) {
+                globeContainer.classList.remove('loading');
+            }
+            
+            // Find the slowest region (excluding nearest)
+            const nonNearestResults = results.filter(r => r.region !== 'NEAREST');
+            const slowestLatency = Math.max(...nonNearestResults.map(r => r.latency));
+            
+            // Get previous values for animation
+            const previousCards = Array.from(regionsList.querySelectorAll('.region-card')).map(card => ({
+                colo: card.querySelector('.region-code').textContent,
+                latency: card.querySelector('.stat-value').textContent.replace(' ms', '')
+            }));
             
             regionsList.innerHTML = results.map(result => {
                 const location = regionData.find(loc => loc.iata === result.colo);
                 const locationName = location ? `${location.city}, ${location.cca2}, ${location.region}` : result.colo;
-                const stats = calculateStats(latencyHistory[result.colo]);
-                const isFastest = result.latency === fastestLatency;
+                const isNearest = result.region === 'NEAREST';
                 const regionKey = result.region.toLowerCase();
+                const previousValue = previousCards.find(card => card.colo === result.colo)?.latency || result.latency;
 
                 return `
-                    <div class="region-card ${isFastest ? 'fastest' : ''}" 
+                    <div class="region-card ${isNearest ? 'fastest' : ''}" 
                          data-region="${regionKey}"
                          onmouseenter="handleCardHover('${regionKey}')">
                         <div class="card-header">
@@ -302,21 +361,28 @@
                         </div>
                         <div class="card-stats">
                             <div class="stat">
-                                <span class="stat-label">Mean</span>
-                                <span class="stat-value ${getLatencyClass(stats.mean)}">${stats.mean} ms</span>
-                            </div>
-                            <div class="stat">
-                                <span class="stat-label">Median</span>
-                                <span class="stat-value ${getLatencyClass(stats.median)}">${stats.median} ms</span>
+                                <span class="stat-label">Ping</span>
+                                <span class="stat-value ${isNearest ? 'latency-good' : ''}">
+                                    ${wrapInFlip(result.latency, previousValue, ' ms')}
+                                </span>
                             </div>
                         </div>
                         <div class="mobile-globe">
                             ${regionGlobeViews[regionKey] || ''}
                         </div>
                     </div>
-
                 `;
             }).join('');
+
+            // Remove animation class after animation completes
+            document.querySelectorAll('.flip-digit.updating').forEach(el => {
+                el.addEventListener('animationend', () => {
+                    el.classList.remove('updating');
+                }, { once: true });
+            });
+
+            // Update time savings with the slowest region
+            updateTimeSavings(results, slowestLatency);
         }
 
         // Handle card hover to rotate globe
@@ -348,32 +414,39 @@
                 if (globeInstance) {
                     globeInstance.setTargetRotation(-Math.PI / 2.2, Math.PI * 1.15);
                 }
-
             });
         });
 
         // Function to update time savings display
-        function updateTimeSavings(results) {
+        function updateTimeSavings(results, slowestLatency) {
             if (!results || results.length === 0) return;
             
-            // Find Australia's latency (OC region)
-            const auResult = results.find(r => r.region === 'OC');
-            const auLatency = auResult ? auResult.latency : 0;
+            // Find slowest non-nearest region
+            const nonNearestResults = results.filter(r => r.region !== 'NEAREST');
+            const slowestResult = nonNearestResults.reduce((slowest, current) => 
+                current.latency > slowest.latency ? current : slowest
+            );
             
-            // Find fastest latency
-            const fastestLatency = Math.min(...results.map(r => r.latency));
+            // Get location info for slowest region
+            const slowestLocation = regionData.find(loc => loc.iata === slowestResult.colo);
+            const locationName = slowestLocation ? 
+                `${slowestLocation.city}, ${slowestLocation.cca2}` : 
+                slowestResult.colo;
             
             // Calculate time savings
-            const savings = auLatency - fastestLatency;
+            const nearestResult = results.find(r => r.region === 'NEAREST');
+            const savings = slowestResult.latency - nearestResult.latency;
             
             // Update the display
             const savingsElement = document.querySelector('.savings-value');
-            const auLatencyElement = document.querySelector('.au-latency');
+            const slowestLatencyElement = document.querySelector('.slowest-latency');
+            const slowestLocationElement = document.querySelector('.slowest-location');
             const timeSavingsElement = document.querySelector('.time-savings');
             
-            if (savingsElement && auLatencyElement) {
+            if (savingsElement && slowestLatencyElement && slowestLocationElement) {
                 savingsElement.textContent = `${savings}ms`;
-                auLatencyElement.textContent = auLatency;
+                slowestLatencyElement.textContent = slowestResult.latency;
+                slowestLocationElement.textContent = locationName;
                 
                 // Show the element with animation
                 timeSavingsElement.classList.add('visible');
@@ -384,51 +457,50 @@
         loadLocations().then(async () => {
             writeButton.addEventListener('click', () => performWrite(true));
             latencyHistory = {};
+            
+            // Show loading state
+            showLoadingState();
+            
+            // Do a warm-up call first
             await performWrite(false);
+            
+            // Then show the results from the second call
+            await performWrite(true);
             
             // Set up automatic refresh every 5 seconds
             updateInterval = setInterval(() => {
                 performWrite(true);
             }, 5000);
-            
-            setTimeout(() => {
-                latencyHistory = {};
-
-                performWrite(true);
-                
-                // Set up periodic writes
-                let writeInterval;
-                
-                function startWrites() {
-                    writeInterval = setInterval(() => performWrite(true), 5000);
-                }
-                
-                function stopWrites() {
-                    clearInterval(writeInterval);
-                }
-                
-                // Handle window focus/blur
-                window.addEventListener('focus', () => {
-                    performWrite(true);  // Immediate write
-                    startWrites();       // Start interval
-                });
-                
-                window.addEventListener('blur', () => {
-                    stopWrites();
-                });
-                
-                // Start writes if window is focused
-                if (document.hasFocus()) {
-                    startWrites();
-                }
-            }, 100);
         });
+
+        function showLoadingState() {
+            const regions = ['wnam', 'enam', 'weur', 'eeur', 'apac', 'oc'];
+            regionsList.innerHTML = regions.map(region => `
+                <div class="region-card loading" data-region="${region}">
+                    <div class="card-header">
+                        <span class="region-code"></span>
+                        <h3></h3>
+                    </div>
+                    <div class="card-stats">
+                        <div class="stat">
+                            <span class="stat-label"></span>
+                            <span class="stat-value"></span>
+                        </div>
+                    </div>
+                    <div class="mobile-globe"></div>
+                </div>
+            `).join('');
+
+            // Add loading class to globe container
+            if (globeContainer) {
+                globeContainer.classList.add('loading');
+            }
+        }
 
         // Cleanup interval when page unloads
         window.addEventListener('unload', () => {
             if (updateInterval) {
                 clearInterval(updateInterval);
-
             }
         });
     </script>
