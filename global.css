@@ -11,6 +11,10 @@
     font-display: swap;
 }
 
+html {
+    background-color: #0A0A0A;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -27,7 +31,6 @@ body {
     color: #fff;
     font-family: 'Departure Mono', monospace;
     overflow-x: hidden;
-    position: relative;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -134,6 +137,7 @@ body:after {
     padding: 0.5rem 1rem;
     border-radius: 4px;
     font-size: 14px;
+    font-weight: 600;
     cursor: pointer;
 }
 
@@ -157,6 +161,18 @@ body:after {
     margin-right: auto;
     position: relative;
     z-index: 10;
+}
+
+@media screen and (max-width: 768px) {
+    .main-content {
+        padding: 150px 1.5rem 1.5rem;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .main-content {
+        padding: 120px 1rem 1rem;
+    }
 }
 
 .breadcrumb {
@@ -195,12 +211,14 @@ h1 {
     display: flex;
     gap: 1rem;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 32px;
+    /* justify-content: flex-end; */
+    max-width: 1080px;
 }
 
-.write-button {
-    background: #f6821f;
-    color: #fff;
+/* .write-button {
+    background: white;
+    color: black;
     border: none;
     padding: 0.75rem 1.5rem;
     border-radius: 4px;
@@ -217,7 +235,7 @@ h1 {
 .write-button:disabled {
     background: #666;
     cursor: not-allowed;
-}
+} */
 
 .last-write {
     color: #888;
@@ -289,7 +307,9 @@ th:nth-child(5), td:nth-child(5) { width: 15%; }
 .flip-number {
     border-radius: 3px;
     padding: 2px 4px;
-    font-family: 'Inter', monospace;
+    /* font-family: 'Inter', monospace; */
+    font-family: 'Departure Mono', monospace; 
+
     display: inline-flex;
     gap: 1px;
 }
