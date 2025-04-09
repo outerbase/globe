@@ -13,112 +13,137 @@
 </head>
 <body>
     <header class="header">
-        <div class="logo">
-            <img src="cloudflare.svg" alt="Cloudflare">
+        <div class="header-content">
+            <div class="logo">
+                <img src="cloudflare.svg" alt="Cloudflare">
+            </div>
+            <div class="auth-buttons">
+                <button class="sign-in">Sign In</button>
+                <button class="sign-up">Sign Up</button>
+            </div>
         </div>
-        <!-- <div class="auth-buttons">
-            <button class="sign-in">Sign In</button>
-            <button class="sign-up">Sign Up</button>
-        </div> -->
     </header>
 
     <main class="main-content">
-        <div class="breadcrumb">Introducing</div>
-        <h1>D1 Read Replicas</h1>
-        <p class="description">
-            Watch how quickly writes propagate across our global network of read replicas. 
-            Click the button below to perform a write operation and observe the latency across different regions.
-        </p>
+        <div class="hero-section">
+            <div class="breadcrumb">> All New</div>
+            <h1>D1 Read Replicas</h1>
+            <p class="description">
+                Read replicas let you query data from servers closer to you, which means faster response times and less waiting.
+
+                Speed up your queries in just a few clicks.
+            </p>
+            <div class="time-savings">
+                <div class="comparison">Queries are <span class="highlight savings-value">&nbsp;0ms&nbsp;</span> faster with your closest replica</div>
+                <div class="detail">Compared to querying the primary in Sydney, Australia (<span class="au-latency">-</span>ms)</div>
+            </div>
+
+            <div class="controls" style="display: none;">
+                <button class="write-button" id="writeButton">Get Started</button>
+                <span class="last-write" id="lastWrite"></span>
+            </div>
+        </div>
+
+        <div class="content-layout">
+            <div class="regions-list" id="regionsList">
+                <!-- Region cards will be populated by JavaScript -->
+            </div>
+            <div class="globe-container" id="globeContainer"></div>
+        </div>
         
-        <div class="controls">
-            <!-- <button class="write-button" id="writeButton">Get started</button> -->
-            <a href="https://deploy.workers.cloudflare.com/?url=https://github.com/cloudflare/templates/tree/staging/d1-starter-sessions-api" target="_blank">
-                <img src="https://deploy.workers.cloudflare.com/button" alt="Deploy to Cloudflare Workers" style="max-width: 200px;">
-                <!-- <img src="./public/img/deploy.svg" alt="Deploy to Cloudflare Workers" style="max-width: 200px;"> -->
-            </a>
-            
-            <button class="code-button" id="writeButton" onclick="document.querySelector('.get-started').scrollIntoView({behavior: 'smooth'})">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
-                    <line x1="8" y1="2.5" x2="8" y2="13.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-                    <polyline points="3.5 9 8 13.5 12.5 9" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/>
-                </svg>
-                See the code
-            </button>
-        </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th class="title-col">Region</th>
-                    <th>Code</th>
-                    <th>Latest</th>
-                    <th>Min</th>
-                    <th>Mean</th>
-                    <th>Median</th>
-                    <!-- <th>Max</th> -->
-                </tr>
-            </thead>
-            <tbody id="replicaTable">
-                <!-- Table rows will be populated by JavaScript -->
-            </tbody>
-        </table>
-
-        <div class="get-started">
-            <h2>Enable Replication</h2>
-            <p class="description">
-                Today you can create new or enable existing D1 databases with global read replication. Requests will be
-                routed to the nearest replica and benefit from the fastest read speeds.
-            </p>
-
-            <div>
-                <pre class="code-block"><button class="copy-button">Copy</button><code class="language-bash"># Enable Read replication
-curl -X PUT "https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}" \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d '{"read_replication": {"mode": "auto"}}'
-</code></pre>
+        <div class="docs-section">
+            <div class="docs-block">
+                <h2>Enable Replication</h2>
+                <p>Today you can create new or enable existing D1 databases with global read replication. Requests will be routed to the nearest replica and benefit from the fastest read speeds.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Enable Read replication</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13 5H7C6.45 5 6 5.45 6 6v7c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3 11H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                    <pre><code>curl -X PUT <span class="string">"https://api.cloudflare.com/client/v4/accounts/{account_id}/d1/database/{database_id}"</span> \
+    -H <span class="string">"Authorization: Bearer $TOKEN"</span> \
+    -H <span class="string">"Content-Type: application/json"</span> \
+    -d <span class="string">'{"read_replication": {"mode": "auto"}}'</span></code></pre>
+                </div>
             </div>
 
-            <h2 style="margin-top: 48px;">Read Consistency</h2>
-            <p class="description">
-                D1's Session API allows you to maintain read consistency across multiple queries. By storing and reusing 
-                the session bookmark, you can ensure that subsequent reads see all changes from previous operations. This is 
-                particularly useful when you need to maintain a consistent view of the database across multiple requests.
-            </p>
+            <div class="docs-block">
+                <h2>Read Consistency</h2>
+                <p>D1's Session API allows you to maintain read consistency across multiple queries. By storing and reusing the session bookmark, you can ensure that subsequent reads see all changes from previous operations. This is particularly useful when you need to maintain a consistent view of the database across multiple requests.</p>
+                
+                <div class="code-block">
+                    <div class="code-header">
+                        <span>Session API Example</span>
+                        <button class="copy-button" onclick="copyCode(this)">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M13 5H7C6.45 5 6 5.45 6 6v7c0 .55.45 1 1 1h6c.55 0 1-.45 1-1V6c0-.55-.45-1-1-1z" stroke="currentColor" stroke-width="1.5"/>
+                                <path d="M3 11H2c-.55 0-1-.45-1-1V3c0-.55.45-1 1-1h6c.55 0 1 .45 1 1v1" stroke="currentColor" stroke-width="1.5"/>
+                            </svg>
+                            <span>Copy</span>
+                        </button>
+                    </div>
+                    <pre><code><span class="comment">// Retrieve bookmark from previous session stored in HTTP header</span>
+<span class="keyword">const</span> <span class="variable">bookmark</span> = <span class="variable">request</span>.<span class="property">headers</span>.<span class="function">get</span>(<span class="string">'x-d1-bookmark'</span>) ?? <span class="string">'first-unconstrained'</span>;
+<span class="keyword">const</span> <span class="variable">session</span> = <span class="variable">env</span>.<span class="property">DB</span>.<span class="function">withSession</span>(<span class="variable">bookmark</span>)
 
-            <div>
-                <pre class="code-block"><button class="copy-button">Copy</button><code class="language-typescript">// Retrieve bookmark from previous session stored in HTTP header
-const bookmark = request.headers.get('x-d1-bookmark') ?? 'first-unconstrained';
-const session = env.DB.withSession(bookmark)
+<span class="keyword">await</span> <span class="variable">session</span>
+    .<span class="function">prepare</span>(<span class="string">"INSERT INTO Orders VALUES (?, ?, ?) ON CONFLICT DO NOTHING"</span>)
+    .<span class="function">bind</span>(<span class="variable">order</span>.<span class="property">customerId</span>, <span class="variable">order</span>.<span class="property">orderId</span>, <span class="variable">order</span>.<span class="property">quantity</span>)
+    .<span class="function">run</span>();
 
-// Since this is a write query, D1 will transparently forward the query.
-await session
-    .prepare("INSERT INTO Orders VALUES (?, ?, ?) ON CONFLICT DO NOTHING")
-    .bind(order.customerId, order.orderId, order.quantity)
-    .run();
+<span class="keyword">const</span> <span class="variable">result</span> = <span class="keyword">await</span> <span class="variable">session</span>.<span class="function">prepare</span>(<span class="string">"SELECT * FROM Orders"</span>).<span class="function">all</span>();
 
-// In order for the application to be correct, this SELECT
-// statement must see the results of the INSERT statement above.
-const result = await session.prepare("SELECT * FROM Orders").all();
-
-// Store bookmark for a future session
-response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
-</code></pre>
+<span class="comment">// Store bookmark for a future session</span>
+<span class="variable">response</span>.<span class="property">headers</span>.<span class="function">set</span>(<span class="string">'x-d1-bookmark'</span>, <span class="variable">session</span>.<span class="function">getBookmark</span>() ?? <span class="string">""</span>)</code></pre>
+                </div>
             </div>
         </div>
+
+        <!-- Hidden container for mobile globes -->
+        <div id="mobileGlobeContainer" style="position: absolute; pointer-events: none;"></div>
     </main>
-
-    <!-- <div id="globe-container"></div> -->
-    <script type="module" src="js/main.js"></script>
     <script>
+        function copyCode(button) {
+            const codeBlock = button.closest('.code-block').querySelector('code');
+            navigator.clipboard.writeText(codeBlock.textContent);
+            
+            const span = button.querySelector('span');
+            const originalText = span.textContent;
+            span.textContent = 'Copied!';
+            button.classList.add('copied');
+            
+            setTimeout(() => {
+                span.textContent = originalText;
+                button.classList.remove('copied');
+            }, 2000);
+        }
+    </script>
+
+    <script type="module">
+        import { Globe } from './js/Globe.js';
+
         const API_BASE = 'https://replication-regions.brayden-b8b.workers.dev';
         const writeButton = document.getElementById('writeButton');
         const lastWrite = document.getElementById('lastWrite');
-        const replicaTable = document.getElementById('replicaTable');
+        const regionsList = document.getElementById('regionsList');
+        const globeContainer = document.getElementById('globeContainer');
         let lastWriteTime = null;
         let regionData = {};
-        // Add storage for historical latency values
         let latencyHistory = {};
+        let globeInstance = null;
+        let updateInterval;
+        let currentRegion = null;
+        let mobileGlobeInstance = null;
+        let regionGlobeViews = {};
+        let isAnimating = false;
+        let currentAnimationFrame = null;
 
         // Fetch locations data
         async function loadLocations() {
@@ -128,7 +153,6 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                 regionData = data;
             } catch (error) {
                 console.error('Error loading locations:', error);
-                // Fallback to existing mapping if load fails
                 regionData = {};
             }
         }
@@ -158,7 +182,6 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                         const data = await response.json();
                         const latency = Math.round(endTime - startTime - data.subtract);
                         
-                        // Store latency in history
                         if (!latencyHistory[data.colo]) {
                             latencyHistory[data.colo] = [];
                         }
@@ -175,7 +198,8 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
                 const results = await Promise.all(requests);
                 window.latencyResults = results;
                 if (renderResults) {
-                    updateTable();
+                    updateCards();
+                    updateTimeSavings(results);
                 }
             } catch (error) {
                 console.error('Error performing writes:', error);
@@ -203,70 +227,173 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
             return 'latency-poor';
         }
 
-        function updateTable() {
-            const results = window.latencyResults || [];
-            const previousRows = Array.from(replicaTable.querySelectorAll('tr')).map(row => ({
-                colo: row.querySelector('.region-code').textContent,
-                latest: row.querySelectorAll('td')[2].textContent.replace(' ms', ''),
-                min: row.querySelectorAll('td')[3].textContent.replace(' ms', ''),
-                mean: row.querySelectorAll('td')[4].textContent.replace(' ms', ''),
-                median: row.querySelectorAll('td')[5].textContent.replace(' ms', '')
-            }));
+        // Initialize mobile globe and pre-render all region views
+        async function initializeMobileGlobes() {
+            if (!mobileGlobeInstance) {
+                const container = document.createElement('div');
+                mobileGlobeInstance = new Globe(container, 160, 80);
+                mobileGlobeInstance.stopAnimation(); // Stop animation immediately
+                
+                // Wait for texture to load
+                await new Promise(resolve => {
+                    const checkTexture = () => {
+                        if (mobileGlobeInstance.texture) {
+                            resolve();
+                        } else {
+                            setTimeout(checkTexture, 50);
+                        }
+                    };
+                    checkTexture();
+                });
+                
+                // Pre-render each region's view
+                const regionAngles = {
+                    'wnam': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI / 2 },
+                    'enam': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI },
+                    'weur': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 1.5 },
+                    'eeur': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 2 },
+                    'apac': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 2.5 },
+                    'oc': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 3 }
+                };
 
-            replicaTable.innerHTML = results.map(result => {
+                // Generate and store ASCII for each region
+                Object.entries(regionAngles).forEach(([region, angles]) => {
+                    mobileGlobeInstance.angleX = angles.x;
+                    mobileGlobeInstance.angleY = angles.y;
+                    mobileGlobeInstance.angleZ = 0;
+                    const ascii = mobileGlobeInstance.render();
+                    regionGlobeViews[region] = `<pre>${ascii}</pre>`;
+                });
+            }
+        }
+
+        async function updateCards() {
+            const results = window.latencyResults || [];
+            
+            // Initialize globes if needed
+            if (!globeInstance) {
+                globeInstance = new Globe(globeContainer, 160, 80);
+                globeInstance.angleX = -Math.PI / 2.2;
+                globeInstance.angleY = Math.PI * 1.15;
+                globeInstance.angleZ = 0;
+                globeInstance.render();
+            }
+            
+            // Initialize mobile globes if needed
+            await initializeMobileGlobes();
+            
+            // Find the fastest region
+            const fastestLatency = Math.min(...results.map(r => r.latency));
+            
+            regionsList.innerHTML = results.map(result => {
                 const location = regionData.find(loc => loc.iata === result.colo);
                 const locationName = location ? `${location.city}, ${location.cca2}, ${location.region}` : result.colo;
                 const stats = calculateStats(latencyHistory[result.colo]);
-                
-                const previousValues = previousRows.find(row => row.colo === result.colo) || {
-                    latest: '-', min: '-', mean: '-', median: '-'
-                };
-
-                const wrapInFlip = (newValue, previousValue, unit = '') => {
-                    if (newValue === '-') return '-';
-                    return `<span class="flip-number">${
-                        newValue.toString()
-                            .split('')
-                            .map((digit, i) => {
-                                const previousDigit = previousValue.toString()[i];
-                                const shouldAnimate = previousDigit !== digit;
-                                return `<span class="flip-digit${shouldAnimate ? ' updating' : ''}" style="animation-delay: ${i * 0.1}s">${digit}</span>`;
-                            })
-                            .join('')
-                    }</span>${unit}`;
-                };
+                const isFastest = result.latency === fastestLatency;
+                const regionKey = result.region.toLowerCase();
 
                 return `
-                    <tr>
-                        <td class="title-col">${locationName}</td>
-                        <td class="region-code">${result.colo}</td>
-                        <td class="normal-col ${getLatencyClass(result.latency)}">${wrapInFlip(result.latency, previousValues.latest, ' ms')}</td>
-                        <td class="normal-col ${getLatencyClass(stats.min)}">${wrapInFlip(stats.min, previousValues.min, ' ms')}</td>
-                        <td class="normal-col ${getLatencyClass(stats.mean)}">${wrapInFlip(stats.mean, previousValues.mean, ' ms')}</td>
-                        <td class="normal-col ${getLatencyClass(stats.median)}">${wrapInFlip(stats.median, previousValues.median, ' ms')}</td>
-                    </tr>
+                    <div class="region-card ${isFastest ? 'fastest' : ''}" 
+                         data-region="${regionKey}"
+                         onmouseenter="handleCardHover('${regionKey}')">
+                        <div class="card-header">
+                            <span class="region-code">${result.colo}</span>
+                            <h3>${locationName}</h3>
+                        </div>
+                        <div class="card-stats">
+                            <div class="stat">
+                                <span class="stat-label">Mean</span>
+                                <span class="stat-value ${getLatencyClass(stats.mean)}">${stats.mean} ms</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Median</span>
+                                <span class="stat-value ${getLatencyClass(stats.median)}">${stats.median} ms</span>
+                            </div>
+                        </div>
+                        <div class="mobile-globe">
+                            ${regionGlobeViews[regionKey] || ''}
+                        </div>
+                    </div>
+
                 `;
             }).join('');
+        }
 
-            // Remove animation class after animation completes
-            document.querySelectorAll('.flip-digit.updating').forEach(el => {
-                el.addEventListener('animationend', () => {
-                    el.classList.remove('updating');
-                }, { once: true });
+        // Handle card hover to rotate globe
+        window.handleCardHover = function(region) {
+            if (globeInstance && region !== currentRegion) {
+                currentRegion = region;
+                
+                const regionAngles = {
+                    'wnam': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI / 2 },
+                    'enam': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI },
+                    'weur': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 1.5 },
+                    'eeur': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 2 },
+                    'apac': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 2.5 },
+                    'oc': { x: -Math.PI / 2.2, y: Math.PI * 1.15 + Math.PI * 3 }
+                };
+
+                const angles = regionAngles[region];
+                if (angles) {
+                    globeInstance.setTargetRotation(angles.x, angles.y);
+                }
+            }
+        };
+
+        // Add mouseout handler to reset current region when not hovering any card
+        document.addEventListener('DOMContentLoaded', () => {
+            const regionsList = document.getElementById('regionsList');
+            regionsList.addEventListener('mouseleave', () => {
+                currentRegion = null;
+                if (globeInstance) {
+                    globeInstance.setTargetRotation(-Math.PI / 2.2, Math.PI * 1.15);
+                }
+
             });
+        });
+
+        // Function to update time savings display
+        function updateTimeSavings(results) {
+            if (!results || results.length === 0) return;
+            
+            // Find Australia's latency (OC region)
+            const auResult = results.find(r => r.region === 'OC');
+            const auLatency = auResult ? auResult.latency : 0;
+            
+            // Find fastest latency
+            const fastestLatency = Math.min(...results.map(r => r.latency));
+            
+            // Calculate time savings
+            const savings = auLatency - fastestLatency;
+            
+            // Update the display
+            const savingsElement = document.querySelector('.savings-value');
+            const auLatencyElement = document.querySelector('.au-latency');
+            const timeSavingsElement = document.querySelector('.time-savings');
+            
+            if (savingsElement && auLatencyElement) {
+                savingsElement.textContent = `${savings}ms`;
+                auLatencyElement.textContent = auLatency;
+                
+                // Show the element with animation
+                timeSavingsElement.classList.add('visible');
+            }
         }
 
         // Initialize
         loadLocations().then(async () => {
             writeButton.addEventListener('click', () => performWrite(true));
-            
-            // Perform a warm-up write without recording data or rendering
-            latencyHistory = {}; // Clear any existing history
+            latencyHistory = {};
             await performWrite(false);
             
-            // Small delay before starting the periodic writes
+            // Set up automatic refresh every 5 seconds
+            updateInterval = setInterval(() => {
+                performWrite(true);
+            }, 5000);
+            
             setTimeout(() => {
-                latencyHistory = {}; // Reset history before the real measurements
+                latencyHistory = {};
+
                 performWrite(true);
                 
                 // Set up periodic writes
@@ -297,37 +424,11 @@ response.headers.set('x-d1-bookmark', session.getBookmark() ?? "")
             }, 100);
         });
 
-        // Add copy button functionality for bash code
-        document.querySelector('.language-bash').previousElementSibling.addEventListener('click', async () => {
-            const code = document.querySelector('.language-bash').textContent;
-            await navigator.clipboard.writeText(code);
-            
-            const button = document.querySelector('.language-bash').previousElementSibling;
-            button.textContent = 'Copied!';
-            setTimeout(() => {
-                button.textContent = 'Copy';
-            }, 2000);
-        });
+        // Cleanup interval when page unloads
+        window.addEventListener('unload', () => {
+            if (updateInterval) {
+                clearInterval(updateInterval);
 
-        // Add copy button functionality for typescript code
-        document.querySelector('.language-typescript').previousElementSibling.addEventListener('click', async () => {
-            const code = document.querySelector('.language-typescript').textContent;
-            await navigator.clipboard.writeText(code);
-            
-            const button = document.querySelector('.language-typescript').previousElementSibling;
-            button.textContent = 'Copied!';
-            setTimeout(() => {
-                button.textContent = 'Copy';
-            }, 2000);
-        });
-
-        // Handle header background on scroll
-        const header = document.querySelector('.header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 200) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
             }
         });
     </script>
