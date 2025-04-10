@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASCII Globe</title>
+    <link rel="stylesheet" href="global.css">
+</head>
+<body>
+    <div class="globe-container" id="globeContainer"></div>
+    <script type="module">
+        import { Globe } from './js/Globe.js';
+        
+        const globeContainer = document.getElementById('globeContainer');
+        const globeInstance = new Globe(globeContainer, 160, 80);
+        globeInstance.angleX = -Math.PI / 1.8;
+        globeInstance.angleY = Math.PI / 2;
+        globeInstance.angleZ = 0;
+        globeInstance.render();
+    </script>
+</body>
+</html> 
